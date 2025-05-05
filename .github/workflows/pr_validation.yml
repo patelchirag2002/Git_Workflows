@@ -31,7 +31,7 @@ jobs:
       - name: Build project and validate analyzers
         run: dotnet build --no-restore -warnaserror
 
-      # # Step 2: Check for <summary> in all controller methods
+      # # Step 2: Check for <summary> in all controller methods 
       # - name: Check for XML summary comments in Controllers
       #   run: |
       #     echo "Checking for <summary> tags in controller files..."
