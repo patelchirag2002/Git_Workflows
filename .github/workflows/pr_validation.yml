@@ -1,0 +1,69 @@
+name: PR Validation Workflow
+
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  DOTNET_VERSION: '9.0.100'
+
+jobs:
+  validate:
+    name: Validate .NET Web API Before Merge
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      # Step 1: Code structure check
+      - name: Run dotnet format (check code style)
+        run: dotnet format --verify-no-changes --severity error
+
+      - name: Build project and validate analyzers
+        run: dotnet build --no-restore -warnaserror
+
+      # # Step 2: Check for <summary> in all controller methods
+      # - name: Check for XML summary comments in Controllers
+      #   run: |
+      #     echo "Checking for <summary> tags in controller files..."
+      #     files=$(grep -L "<summary>" ./YourProjectPath/Controllers/*.cs || true)
+      #     if [[ -n "$files" ]]; then
+      #       echo "Missing <summary> comments in:"
+      #       echo "$files"
+      #       exit 1
+      #     else
+      #       echo "All controller files contain <summary> comments."
+      #     fi
+
+      # # Step 3: Check API route naming
+      # - name: Check API Route Naming Pattern
+      #   run: |
+      #     echo "Checking API route naming in controller attributes..."
+      #     bad_routes=$(grep -EL 'Route\("api/[a-zA-Z0-9/-]+"\)' ./YourProjectPath/Controllers/*.cs || true)
+      #     if [[ -n "$bad_routes" ]]; then
+      #       echo "Improper route patterns found in:"
+      #       echo "$bad_routes"
+      #       exit 1
+      #     else
+      #       echo "All API route names follow the correct pattern."
+      #     fi
+
+      # # Step 4: Run SonarQube analysis
+      # - name: Run SonarQube Analysis
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   run: |
+      #     dotnet tool install --global dotnet-sonarscanner
+      #     export PATH="$PATH:/home/runner/.dotnet/tools"
+      #     dotnet sonarscanner begin /k:"your_project_key" /d:sonar.login="$SONAR_TOKEN"
+      #     dotnet build
+      #     dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
