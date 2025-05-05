@@ -1,0 +1,6 @@
+@Git_Workflows.API_HostAddress = http://localhost:5230
+
+GET {{Git_Workflows.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
