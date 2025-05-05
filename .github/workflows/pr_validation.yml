@@ -31,18 +31,18 @@ jobs:
       - name: Build project and validate analyzers
         run: dotnet build --no-restore -warnaserror
 
-      # # Step 2: Check for <summary> in all controller methods 
-      # - name: Check for XML summary comments in Controllers
-      #   run: |
-      #     echo "Checking for <summary> tags in controller files..."
-      #     files=$(grep -L "<summary>" ./YourProjectPath/Controllers/*.cs || true)
-      #     if [[ -n "$files" ]]; then
-      #       echo "Missing <summary> comments in:"
-      #       echo "$files"
-      #       exit 1
-      #     else
-      #       echo "All controller files contain <summary> comments."
-      #     fi
+      # Step 2: Check for <summary> in all controller methods
+      - name: Check for XML summary comments in Controllers
+        run: |
+          echo "Checking for <summary> tags in controller files..."
+          files=$(grep -L "<summary>" ./YourProjectPath/Controllers/*.cs || true)
+          if [[ -n "$files" ]]; then
+            echo "Missing <summary> comments in:"
+            echo "$files"
+            exit 1
+          else
+            echo "All controller files contain <summary> comments."
+          fi
 
       # # Step 3: Check API route naming
       # - name: Check API Route Naming Pattern
