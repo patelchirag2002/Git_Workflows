@@ -35,11 +35,11 @@ jobs:
       - name: Check for XML summary comments in Controllers
         run: |
           echo "Checking for <summary> tags in controller files..."
-          files=$(grep -L "<summary>" ./YourProjectPath/Controllers/*.cs || true)
+          files=$(find ./Git_Workflows.API/Controllers -name "*.cs" -exec grep -L "<summary>" {} \; || true)
           if [[ -n "$files" ]]; then
-            echo "Missing <summary> comments in:"
+            echo "Missing <summary> comments in the following files:"
             echo "$files"
-            exit 1
+            exit 1  # This causes the workflow to fail
           else
             echo "All controller files contain <summary> comments."
           fi
