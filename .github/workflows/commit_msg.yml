@@ -1,0 +1,26 @@
+name: Check Commit Messages
+
+on:
+  push:
+    branches:
+      - '**'  # This will trigger the workflow on push to any branch
+
+jobs:
+  check-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check Commit Messages
+        run: |
+          # Get the commits between the current branch and its upstream
+          for commit in $(git log origin/$(git rev-parse --abbrev-ref HEAD)..HEAD --pretty=format:%H); do
+            msg=$(git log -1 --pretty=format:%s $commit)
+            echo "Checking commit: $msg"
+            
+            # Check if the commit message starts with a valid type
+            echo "$msg" | grep -Eq "^(Added|Changed|Deprecated|Removed|Fixed|Security|Add|Chg|Dep|Rm|Fix|Sec): " || (echo "Invalid commit message: $msg" && exit 1)
+            
+            # Extract the message text and ensure it's at least 15 characters long
+            text=$(echo "$msg" | sed -E "s/^(Added|Changed|Deprecated|Removed|Fixed|Security|Add|Chg|Dep|Rm|Fix|Sec): //")
+            [ ${#text} -ge 15 ] || (echo "Message too short: $msg" && exit 1)
+          done
