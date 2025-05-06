@@ -18,6 +18,10 @@ namespace Git_Workflows.API.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Get method for weatherforcast
+        /// </summary>
+        /// <returns></returns>
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
