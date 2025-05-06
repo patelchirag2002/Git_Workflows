@@ -62,7 +62,7 @@ jobs:
             # Check for improperly named controller or method routes (uppercase, digits, etc.)
             invalid_routes=$(grep -EL "$ROUTE_REGEX" "$file" || true)
             if [[ -n "$invalid_routes" ]]; then
-              echo "Invalid route pattern found in $file:"
+              echo "Invalid route pattern found (uppercase, digits, etc.) in $file:"
               echo "$invalid_routes"
               has_errors=1
             fi
