@@ -84,3 +84,84 @@ jobs:
       
           rm -f $DUPLICATE_CHECK_FILE
           echo "All routes are valid, lowercase, unique, and have proper route names."
+
+      # Step 4: Validate that POST methods use models (not primitives) and GET methods do not use models.
+      # -------------------------------------------------------------------------------------
+      # This step validates API controller methods to enforce consistent parameter rules:
+      # 
+      # For [HttpPost(...)] methods:
+      #   1) Must accept either a model class (e.g., LocationModel) or no parameters.
+      #   2) Cannot accept primitive types like string, int, etc.
+      # 
+      # For [HttpGet(...)] methods:
+      #   1) Can have no parameters or one/more primitive parameters (string, int, etc.).
+      #   2) Cannot accept model classes as parameters.
+      # 
+      # The script scans controller files and exits with an error if any method violates 
+      # these conventions to maintain API consistency and proper usage patterns.
+      # -------------------------------------------------------------------------------------
+      - name: Validate API Method Parameters for GET and POST
+        run: |
+          echo "Validating GET and POST API method parameters..."
+      
+          PRIMITIVES_REGEX='^(string|int|long|float|double|bool|Guid|DateTime)(\[\])?$'
+          POST_ISSUES=0
+          GET_ISSUES=0
+      
+          for file in ./Git_Workflows.API/Controllers/*.cs; do
+            while IFS= read -r line; do
+              if [[ "$line" =~ \[Http(Post|Get).* ]]; then
+                ATTR="$line"
+                read -r signature
+      
+                # Extract method parameters
+                params=$(echo "$signature" | sed -n 's/.*(\(.*\)).*/\1/p' | tr -d '[:space:]')
+      
+                # POST validation
+                if [[ "$ATTR" =~ \[HttpPost ]]; then
+                  if [[ -z "$params" ]]; then
+                    continue  # No parameters
+                  elif echo "$params" | grep -q ","; then
+                    echo "POST method with multiple parameters is not allowed in $file:"
+                    echo "$ATTR"
+                    echo "$signature"
+                    POST_ISSUES=1
+                  else
+                    type=$(echo "$params" | cut -d' ' -f1)
+                    if [[ "$type" =~ $PRIMITIVES_REGEX ]]; then
+                      echo "POST method using primitive type '$type' is not allowed in $file:"
+                      echo "$ATTR"
+                      echo "$signature"
+                      POST_ISSUES=1
+                    fi
+                  fi
+      
+                # GET validation
+                elif [[ "$ATTR" =~ \[HttpGet ]]; then
+                  if [[ -z "$params" ]]; then
+                    continue  # No parameters
+                  else
+                    # Split params by comma and check each
+                    IFS=',' read -ra param_arr <<< "$params"
+                    for param in "${param_arr[@]}"; do
+                      type=$(echo "$param" | cut -d' ' -f1)
+                      if ! [[ "$type" =~ $PRIMITIVES_REGEX ]]; then
+                        echo "GET method using model type '$type' is not allowed in $file:"
+                        echo "$ATTR"
+                        echo "$signature"
+                        GET_ISSUES=1
+                      fi
+                    done
+                  fi
+                fi
+      
+              fi
+            done < <(grep -E '\[Http(Post|Get)' "$file" -A 1)
+          done
+      
+          if [[ "$POST_ISSUES" -eq 1 || "$GET_ISSUES" -eq 1 ]]; then
+            echo "API method parameter validation failed."
+            exit 1
+          else
+            echo "All GET and POST methods meet parameter rules."
+          fi
