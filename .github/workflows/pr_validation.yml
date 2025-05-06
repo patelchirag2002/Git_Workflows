@@ -119,18 +119,27 @@ jobs:
       
                 # Extract method parameters
                 params=$(echo "$signature" | sed -n 's/.*(\(.*\)).*/\1/p' | tr -d '[:space:]')
-      
+
                 # POST validation
                 if [[ "$ATTR" =~ \[HttpPost ]]; then
                   if [[ -z "$params" ]]; then
-                    continue  # No parameters
-                  elif echo "$params" | grep -q ","; then
+                    continue  # No parameters, valid
+                  fi
+                
+                  # Remove line breaks, extra spacing
+                  clean_params=$(echo "$params" | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                
+                  # Count number of parameters
+                  param_count=$(echo "$clean_params" | grep -o "," | wc -l)
+                  param_count=$((param_count + 1))
+                
+                  if [[ "$param_count" -gt 1 ]]; then
                     echo "POST method with multiple parameters is not allowed in $file:"
                     echo "$ATTR"
                     echo "$signature"
                     POST_ISSUES=1
                   else
-                    type=$(echo "$params" | cut -d' ' -f1)
+                    type=$(echo "$clean_params" | awk '{print $1}')
                     if [[ "$type" =~ $PRIMITIVES_REGEX ]]; then
                       echo "POST method using primitive type '$type' is not allowed in $file:"
                       echo "$ATTR"
@@ -138,6 +147,7 @@ jobs:
                       POST_ISSUES=1
                     fi
                   fi
+                fi
       
                 # GET validation
                 elif [[ "$ATTR" =~ \[HttpGet ]]; then
