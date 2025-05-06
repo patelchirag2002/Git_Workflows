@@ -6,6 +6,7 @@ on:
 
 env:
   DOTNET_VERSION: '9.0.100'
+  SONARQUBE_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
 
 jobs:
   validate:
@@ -168,3 +169,12 @@ jobs:
           else
             echo "All GET and POST methods meet parameter rules."
           fi
+
+      # # Step 5: SonarQube Analysis
+      # - name: Run SonarQube Analysis
+      #   uses: SonarSource/sonarcloud-github-action@v2
+      #   with:
+      #     sonar-token: ${{ secrets.SONARQUBE_TOKEN }}
+      #     sonar-project-key: your-project-key  # Update with your SonarQube project key
+      #     sonar-project-name: your-project-name  # Update with your project name
+      #     sonar-host-url: https://your-sonarqube-server-url  # Update with your SonarQube server URL
