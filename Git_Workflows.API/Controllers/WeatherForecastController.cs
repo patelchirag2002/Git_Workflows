@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Git_Workflows.API.Controllers
 {
     [ApiController]
-    [Route("weather-forecast")]
+    [Route("api/weather-forecast")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -24,6 +24,22 @@ namespace Git_Workflows.API.Controllers
         /// <returns></returns>
         [HttpGet("list")]
         public IEnumerable<WeatherForecast> Get()
+        {
+            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+            })
+            .ToArray();
+        }
+
+        /// <summary>
+        /// Get method for weatherforcast
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("list")]
+        public IEnumerable<WeatherForecast> Get2()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
