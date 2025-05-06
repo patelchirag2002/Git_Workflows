@@ -39,7 +39,7 @@ namespace Git_Workflows.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("list")]
-        public IEnumerable<WeatherForecast> Get2()
+        public IEnumerable<WeatherForecast> Get2(string Id)
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
