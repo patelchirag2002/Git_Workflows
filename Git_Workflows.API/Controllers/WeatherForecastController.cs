@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Git_Workflows.API.Controllers
 {
     [ApiController]
-    [Route("api/Weather-forecast")]
+    [Route("weather-forecast")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
