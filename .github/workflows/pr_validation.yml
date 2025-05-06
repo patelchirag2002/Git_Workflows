@@ -60,27 +60,17 @@ jobs:
             echo "Checking $file"
           
             # 1. Check for improperly named method routes (uppercase, digits, etc.)
-            while IFS= read -r method_route; do
-              route_value=$(echo "$method_route" | grep -oE '\"api/[^\"]+\"' | tr -d '"')
-              if [[ -n "$route_value" ]] && [[ ! "$route_value" =~ ^api/[a-z-]+$ ]]; then
-                echo "❌ Invalid method route pattern found in $file:"
-                echo "   Route --> \"$route_value\""
-                echo "   Line --> $method_route"
-                has_errors=1
-              fi
-            done < <(grep -E '\[Http(Get|Post|Put|Delete)\(\"' "$file")
+            invalid_routes=$(grep -EL "$ROUTE_REGEX" "$file" || true)
+            if [[ -n "$invalid_routes" ]]; then
+              echo "❌ Invalid route pattern found (uppercase, digits, etc.) in methods in $file:"
+              echo "$invalid_routes"
+              has_errors=1
+            fi
             
             # 2. Check if controller has a valid main route
             main_route=$(grep -E '^\[Route\("api/[a-z-]+\"\)]' "$file")
             if [[ -z "$main_route" ]]; then
-              echo "❌ Missing or invalid main controller route in $file"
-              echo "   Expected format --> [Route(\"api/controller-name\")] (lowercase, hyphenated)"
-              actual_route=$(grep -E '^\[Route\(' "$file" || true)
-              if [[ -n "$actual_route" ]]; then
-                echo "   Found --> $actual_route"
-              else
-                echo "   No [Route(...)] attribute found."
-              fi
+              echo "❌ Missing or invalid main route in controller in $file"
               has_errors=1
             fi
           
