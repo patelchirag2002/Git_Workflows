@@ -119,27 +119,29 @@ jobs:
       
                 # Extract method parameters
                 params=$(echo "$signature" | sed -n 's/.*(\(.*\)).*/\1/p' | tr -d '[:space:]')
-
+      
+                # Define regex for primitive types (including nullable and array forms)
+                PRIMITIVES_REGEX="^(string|int|long|bool|double|float|char|byte|short|decimal|DateTime|Guid)(\\?|\\[\\])?$"
+                
                 # POST validation
-                if [[ "$ATTR" =~ \[HttpPost ]]; then
+                if [[ "$ATTR" =~ \[HttpPost(\(.*\))?\] ]]; then
                   if [[ -z "$params" ]]; then
-                    continue  # No parameters, valid
-                  fi
-                
-                  # Remove line breaks, extra spacing
-                  clean_params=$(echo "$params" | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-                
-                  # Count number of parameters
-                  param_count=$(echo "$clean_params" | grep -o "," | wc -l)
-                  param_count=$((param_count + 1))
-                
-                  if [[ "$param_count" -gt 1 ]]; then
+                    continue  # No parameters — allowed
+                  elif echo "$params" | grep -q ","; then
                     echo "POST method with multiple parameters is not allowed in $file:"
                     echo "$ATTR"
                     echo "$signature"
                     POST_ISSUES=1
                   else
-                    type=$(echo "$clean_params" | awk '{print $1}')
+                    # Extract the parameter type and name (e.g., "string id" -> "string")
+                    type=$(echo "$params" | sed -E 's/^[[:space:]]*([a-zA-Z0-9_<>\[\]?]+)[[:space:]]+\**[a-zA-Z0-9_]+.*$/\1/')
+                
+                    # Handle generic types (e.g., IEnumerable<LocationModel>)
+                    if [[ "$type" =~ ^(IEnumerable|List|ICollection|IList)<([a-zA-Z0-9_]+)>$ ]]; then
+                      model_type="${BASH_REMATCH[2]}"
+                      type="$model_type"  # Treat generic inner type as the actual type
+                    fi
+                
                     if [[ "$type" =~ $PRIMITIVES_REGEX ]]; then
                       echo "POST method using primitive type '$type' is not allowed in $file:"
                       echo "$ATTR"
