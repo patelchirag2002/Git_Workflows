@@ -1,0 +1,15 @@
+#!/bin/bash
+# This hook is triggered after a repo is cloned or checked out.
+# Automatically set up commit-msg hook from the template.
+
+if [ ! -d ".git/hooks" ]; then
+  echo "No .git/hooks directory found!"
+  exit 1
+fi
+
+# Copy hooks from the template directory
+cp -r $(pwd)/git-template/hooks/* .git/hooks/
+
+# Make sure all hooks are executable
+chmod +x .git/hooks/*
+echo "Git hooks have been set up automatically!"

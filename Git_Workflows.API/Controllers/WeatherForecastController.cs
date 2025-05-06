@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Git_Workflows.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/weather-forecast")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -18,7 +18,11 @@ namespace Git_Workflows.API.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
+        /// <summary>
+        /// Get method for weatherforcast
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("list")]
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
