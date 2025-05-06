@@ -69,8 +69,11 @@ jobs:
             fi
 
             # 2. Check if the controller has a valid main route
-            main_route=$(grep -E "$MAIN_ROUTE_REGEX" "$file" || true)
-            if [[ -z "$main_route" ]]; then
+            first_route=$(grep -m 1 '\[Route("' "$file" || true)
+
+            if [[ "$first_route" =~ \[Route\(\"api/[a-z-]+\"\)\] ]]; then
+              echo "Valid main route found --> $first_route"
+            else
               echo "Missing or invalid main route in controller in $file (should start with 'api/')"
               has_errors=1
             fi
