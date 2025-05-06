@@ -13,11 +13,6 @@ namespace Git_Workflows.API.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public class TestModel
-        {
-            public int Id { get; set; }
-        }
-
         public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
             _logger = logger;
@@ -28,7 +23,7 @@ namespace Git_Workflows.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("list")]
-        public IEnumerable<WeatherForecast> Get(TestModel model)
+        public IEnumerable<WeatherForecast> Get(string id)
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
