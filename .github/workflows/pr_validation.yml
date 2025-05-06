@@ -50,7 +50,7 @@ jobs:
           echo "Validating API route naming, presence, and duplicates..."
           
           # Regex to enforce lowercase-only API routes: api/something or api/something/else, with no digits or uppercase
-          ROUTE_REGEX='Route\("([a-z-]+)"\)'  # accepts hyphens in controller names, no numbers or uppercase letters
+          ROUTE_REGEX='Route\("api(/[a-z-]+)+\"\)'  # accepts hyphens in controller names, no numbers or uppercase letters
           MAIN_ROUTE_REGEX='^\[Route\("api/[a-z-]+\"\)]'   # main route must start with 'api/'
           DUPLICATE_CHECK_FILE="all_routes.tmp"
           > $DUPLICATE_CHECK_FILE
