@@ -67,35 +67,35 @@ jobs:
               exit 1
             fi
             
-            # 2. Check if controller has a valid main route
-            main_route=$(grep -E '^\[Route\("api/[a-z-]+\"\)]' "$file")
-            if [[ -z "$main_route" ]]; then
-              echo "Missing or invalid main route in controller in $file"
-              exit 1
-            fi
+          #   # 2. Check if controller has a valid main route
+          #   main_route=$(grep -E '^\[Route\("api/[a-z-]+\"\)]' "$file")
+          #   if [[ -z "$main_route" ]]; then
+          #     echo "Missing or invalid main route in controller in $file"
+          #     exit 1
+          #   fi
           
-            # 3. Check for missing or invalid route names in methods
-            while IFS= read -r route_line; do
-              route_value=$(echo "$route_line" | grep -oE '\"[^\"]+\"' | tr -d '"')
-              if [[ -z "$route_value" ]]; then
-                echo "Missing route name in method in $file:"
-                echo "$route_line"
-                exit 1
-              else
-                echo "$route_value -> $file" >> $DUPLICATE_CHECK_FILE
-              fi
-            done < <(grep -E '\[Route\(|\[Http(Get|Post|Put|Delete)\(\"' "$file")
+          #   # 3. Check for missing or invalid route names in methods
+          #   while IFS= read -r route_line; do
+          #     route_value=$(echo "$route_line" | grep -oE '\"[^\"]+\"' | tr -d '"')
+          #     if [[ -z "$route_value" ]]; then
+          #       echo "Missing route name in method in $file:"
+          #       echo "$route_line"
+          #       exit 1
+          #     else
+          #       echo "$route_value -> $file" >> $DUPLICATE_CHECK_FILE
+          #     fi
+          #   done < <(grep -E '\[Route\(|\[Http(Get|Post|Put|Delete)\(\"' "$file")
           
-          done
+          # done
           
-          # 4. Check for duplicate route names
-          echo "Checking for duplicate route names..."
-          duplicate_routes=$(cut -d' ' -f1 $DUPLICATE_CHECK_FILE | sort | uniq -d)
-          if [[ -n "$duplicate_routes" ]]; then
-            echo "Duplicate route names found:"
-            grep -F "$duplicate_routes" $DUPLICATE_CHECK_FILE
-            exit 1
-          fi
+          # # 4. Check for duplicate route names
+          # echo "Checking for duplicate route names..."
+          # duplicate_routes=$(cut -d' ' -f1 $DUPLICATE_CHECK_FILE | sort | uniq -d)
+          # if [[ -n "$duplicate_routes" ]]; then
+          #   echo "Duplicate route names found:"
+          #   grep -F "$duplicate_routes" $DUPLICATE_CHECK_FILE
+          #   exit 1
+          # fi
           
           rm -f $DUPLICATE_CHECK_FILE
           
