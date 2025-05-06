@@ -1,0 +1,11 @@
+#!/bin/sh
+msg=$(cat "$1")
+
+pattern="^(Added|Changed|Deprecated|Removed|Fixed|Security|Add|Chg|Dep|Rem|Fix|Sec):"
+
+if ! echo "$msg" | grep -qE "$pattern"; then
+  echo "Commit message must start with one of:"
+  echo "Added:, Changed:, Deprecated:, Removed:, Fixed:, Security:"
+  echo "Or short: Add:, Chg:, Dep:, Rem:, Fix:, Sec:"
+  exit 1
+fi
