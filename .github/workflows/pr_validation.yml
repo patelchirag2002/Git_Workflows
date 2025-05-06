@@ -44,7 +44,7 @@ jobs:
             echo "All controller files contain <summary> comments."
           fi
 
-      # Step 3: Check API route naming
+      # Step 3: Check API Route Naming Pattern and Uniqueness
       - name: Check API Route Naming Pattern and Uniqueness
         run: |
           echo "Validating API route naming, presence, and duplicates..."
@@ -64,14 +64,14 @@ jobs:
             if [[ -n "$invalid_routes" ]]; then
               echo "Invalid route pattern found (uppercase, digits, etc.) in methods in $file:"
               echo "$invalid_routes"
-              has_errors=1
+              exit 1
             fi
             
             # 2. Check if controller has a valid main route
             main_route=$(grep -E '^\[Route\("api/[a-z-]+\"\)]' "$file")
             if [[ -z "$main_route" ]]; then
               echo "Missing or invalid main route in controller in $file"
-              has_errors=1
+              exit 1
             fi
           
             # 3. Check for missing or invalid route names in methods
@@ -80,7 +80,7 @@ jobs:
               if [[ -z "$route_value" ]]; then
                 echo "Missing route name in method in $file:"
                 echo "$route_line"
-                has_errors=1
+                exit 1
               else
                 echo "$route_value -> $file" >> $DUPLICATE_CHECK_FILE
               fi
@@ -94,17 +94,13 @@ jobs:
           if [[ -n "$duplicate_routes" ]]; then
             echo "Duplicate route names found:"
             grep -F "$duplicate_routes" $DUPLICATE_CHECK_FILE
-            has_errors=1
+            exit 1
           fi
           
           rm -f $DUPLICATE_CHECK_FILE
           
-          if [[ "$has_errors" -eq 1 ]]; then
-            echo "Route validation failed."
-            exit 1
-          else
-            echo "All routes are valid, lowercase, unique, and have proper route names."
-          fi
+          echo "All routes are valid, lowercase, unique, and have proper route names."
+
 
       # Step 4: Validate that POST methods use models (not primitives) and GET methods do not use models.
       # -------------------------------------------------------------------------------------
