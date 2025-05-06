@@ -27,7 +27,7 @@ namespace Git_Workflows.API.Controllers
         /// Get method for weatherforcast
         /// </summary>
         /// <returns></returns>
-        [HttpGet("list")]
+        [HttpPost("list")]
         public IEnumerable<WeatherForecast> Get(TestModel model)
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
