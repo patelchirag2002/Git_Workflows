@@ -1,6 +1,6 @@
 name: Super-Linter
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   super-lint:
@@ -13,8 +13,6 @@ jobs:
       - name: Run Super-Linter
         uses: github/super-linter@v5
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BRANCH: main
-          VALIDATE_ALL_CODEBASE: true
-          OUTPUT_DETAILS: detailed
-          ANNOTATIONS: true
+          LOG_LEVEL: DEBUG
+          ENABLE_GITHUB_ACTIONS_GROUP_TITLE: true
+          ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
