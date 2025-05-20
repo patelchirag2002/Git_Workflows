@@ -195,14 +195,12 @@ jobs:
                 if [[ ! "$variable_name" =~ ^[a-z][a-zA-Z0-9]*$ ]]; then
                   echo "Invalid variable name: '$variable_name' in file $file. It must be camelCase."
                   violation_count=$((violation_count + 1))
-                  echo "Current violation count: $violation_count"
                 fi
               fi
             done < "$file"
           done
-
-          echo "Final violation count: $violation_count"
-
+          
+          echo "Final violation count: $(violation_count)"
           # Report the results
           if [[ $violation_count -eq 0 ]]; then
             echo "All local variables follow camelCase convention."
