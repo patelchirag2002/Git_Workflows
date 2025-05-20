@@ -22,6 +22,14 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
       - name: Restore Dependencies
         run: dotnet restore
 
@@ -169,12 +177,31 @@ jobs:
           else
             echo "All GET and POST methods meet parameter rules."
           fi
+      
+      # Step 5 : Check Local Variables (camelCase)
+      - name: Check for camelCase Local Variables
+        run: |
+          echo "Checking for camelCase local variables..."
+          violation_count=0
+          find ./Git_Workflows.API/Controllers -name "*.cs" | while read -r file; do
+            while IFS= read -r line; do
+              # Match local variable declarations (excluding constants and fields)
+              if [[ "$line" =~ [[:space:]]+([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]+\1 ]]; then
+                variable_name="${BASH_REMATCH[1]}"
+                # Check if it's camelCase (lowercase first character)
+                if [[ ! "$variable_name" =~ ^[a-z][a-zA-Z0-9]*$ ]]; then
+                  echo "Invalid variable name: '$variable_name' in file $file. It must be camelCase."
+                  violation_count=$((violation_count + 1))
+                fi
+              fi
+            done < "$file"
+          done
+          if [[ $violation_count -eq 0 ]]; then
+            echo "All local variables follow camelCase convention."
+          else
+            echo "Found $violation_count local variable naming violations."
+            exit 1
+          fi
 
-      # # Step 5: SonarQube Analysis
-      # - name: Run SonarQube Analysis
-      #   uses: SonarSource/sonarcloud-github-action@v2
-      #   with:
-      #     sonar-token: ${{ secrets.SONARQUBE_TOKEN }}
-      #     sonar-project-key: your-project-key  # Update with your SonarQube project key
-      #     sonar-project-name: your-project-name  # Update with your project name
-      #     sonar-host-url: https://your-sonarqube-server-url  # Update with your SonarQube server URL
+
+

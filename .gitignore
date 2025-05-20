@@ -2,6 +2,6 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/Git_Workflows
-/Git_Workflows.API/bin/Debug/net9.0
+/.vs
+/Git_Workflows.API/bin
 /Git_Workflows.API/obj
