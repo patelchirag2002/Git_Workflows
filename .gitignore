@@ -3,5 +3,5 @@
 ################################################################################
 
 /.vs
-/Git_Workflows.API/bin/Debug/net9.0
+/Git_Workflows.API/bin
 /Git_Workflows.API/obj
